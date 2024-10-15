@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ниндзя Тапалка</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('4.png');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+        }
+
+        .intro-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+            z-index: 1000;
+        }
+
+        .intro-screen img {
+            max-width: 50%;
+            max-height: 50%;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .hidden { opacity: 0; pointer-events: none; }
+        .game-container { text-align: center; display: none; }
+        .visible { display: block; }
+
+        #score { font-size: 2em; margin-bottom: 20px; }
+
+        #tapNinja {
+            margin-left: 250px;
+            margin-top: 20px;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        #tapNinja img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            transition: transform 0.2s;
+        }
+
+        .tilt-left {
+            transform: rotate(-10deg);
+        }
+
+        .tilt-right {
+            transform: rotate(10deg);
+        }
+
+        .menu {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.5s ease-in-out;
+        }
+
+        .menu.open {
+            max-height: 200px;
+        }
+
+        .menu button {
+            margin: 5px;
+            padding: 10px 20px;
+            background-color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .menu button:hover {
+            color: white;
+            background-color: #EA9EC4;
+        }
+
+        .toggle-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-button:hover {
+            color: white;
+            background-color: #EA9EC4;
+        }
+
+        .volume-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .volume-button:hover {
+            background-color: #EA9EC4;
+        }
+    </style>
+</head>
+<body>
+    <div class="intro-screen" id="introScreen">
+        <img src="5.png" alt="TapNinja">
+    </div>
+
+    <div class="game-container" id="gameContainer">
+        <div id="score">0</div>
+        <div id="tapNinja">
+            <img src="2.png" alt="Tap Ninja">
+        </div>
+        <button class="toggle-button" onclick="toggleMenu()">Выбрать персонажа</button>
+        <div class="menu" id="characterMenu">
+            <button onclick="changeCharacter('2.png')">Ниндзя</button>
+            <button onclick="changeCharacter('6.png')">Персонаж 1</button>
+            <button onclick="changeCharacter('7.png')">Персонаж 2</button>
+            <button onclick="changeCharacter('character3.png')">Персонаж 3</button>
+            <button onclick="changeCharacter('character4.png')">Персонаж 4</button>
+        </div>
+    </div>
+
+    <audio id="backgroundMusic" loop>
+        <source src="8.mp3" type="audio/mp3">
+        Ваш браузер не поддерживает аудио.
+    </audio>
+
+    <button class="volume-button" id="volumeButton">🔊</button>
+    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+
+    <script>
+        let score = 0;
+        const scoreDisplay = document.getElementById('score');
+        const tapNinja = document.getElementById('tapNinja');
+        const tapNinjaImg = tapNinja.querySelector('img');
+        const introScreen = document.getElementById('introScreen');
+        const gameContainer = document.getElementById('gameContainer');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const volumeButton = document.getElementById('volumeButton');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const characterMenu = document.getElementById('characterMenu');
+        let isMusicPlaying = true;
+
+        setTimeout(() => {
+            introScreen.classList.add('hidden');
+            gameContainer.classList.add('visible');
+            backgroundMusic.play();
+        }, 5000);
+
+        tapNinja.addEventListener('click', () => {
+            score++;
+            scoreDisplay.textContent = score;
+
+            // Tilt to the left or right based on the score
+            const tiltClass = score % 2 === 0 ? 'tilt-left' : 'tilt-right';
+            tapNinjaImg.classList.add(tiltClass);
+
+            setTimeout(() => {
+                tapNinjaImg.classList.remove(tiltClass);
+            }, 200);
+        });
+
+        function changeCharacter(imageSrc) {
+            tapNinjaImg.src = imageSrc;
+        }
+
+        function toggleMenu() {
+            characterMenu.classList.toggle('open');
+        }
+
+        volumeButton.addEventListener('click', () => {
+            if (isMusicPlaying) {
+                backgroundMusic.pause();
+                volumeButton.textContent = '🔈';
+            } else {
+                backgroundMusic.play();
+                volumeButton.textContent = '🔊';
+            }
+            isMusicPlaying = !isMusicPlaying;
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            backgroundMusic.volume = e.target.value;
+        });
+    </script>
+</body>
+</html>
